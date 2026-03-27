@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "object-pool_lazy", "object-pool_lazy\object-pool_lazy.csproj", "{EFB07F93-925E-4AB3-9355-F4B7C616D140}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "method_test", "abstract_method\method_test.csproj", "{A8188E01-45B4-4267-9295-A6DD3D57E618}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "afabric_game", "abstract_fabric\afabric_game.csproj", "{7ABA415F-EE52-4E82-A9C6-E8A6EAEC3E77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{EFB07F93-925E-4AB3-9355-F4B7C616D140}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFB07F93-925E-4AB3-9355-F4B7C616D140}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EFB07F93-925E-4AB3-9355-F4B7C616D140}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8188E01-45B4-4267-9295-A6DD3D57E618}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8188E01-45B4-4267-9295-A6DD3D57E618}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8188E01-45B4-4267-9295-A6DD3D57E618}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8188E01-45B4-4267-9295-A6DD3D57E618}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7ABA415F-EE52-4E82-A9C6-E8A6EAEC3E77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ABA415F-EE52-4E82-A9C6-E8A6EAEC3E77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ABA415F-EE52-4E82-A9C6-E8A6EAEC3E77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ABA415F-EE52-4E82-A9C6-E8A6EAEC3E77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

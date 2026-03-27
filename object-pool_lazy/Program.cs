@@ -3,7 +3,7 @@
 class Program
 {
     private static LazyInitializer<ConnectionPool> _pool =
-        new LazyInitializer<ConnectionPool>(() => new ConnectionPool(3));
+        new LazyInitializer<ConnectionPool>(() => new ConnectionPool(6));
 
     
     static void Main(string[] args)

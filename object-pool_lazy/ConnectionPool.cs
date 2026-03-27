@@ -11,7 +11,7 @@ public class ConnectionPool
         {
             _counter++;
             return new Connection(_counter);
-        }, size);
+        }, size, size);
     }
 
     public Connection Acquire()
