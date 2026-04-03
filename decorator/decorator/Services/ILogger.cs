@@ -1,5 +1,4 @@
-﻿// Интерфейс логгера и его консольная реализация
-// Вынесен в отдельный сервис для соблюдения DIP (Dependency Inversion Principle)
+// Интерфейс логгера и его консольная реализация
 
 namespace HttpDecoratorSystem.Services
 {
@@ -10,19 +9,18 @@ namespace HttpDecoratorSystem.Services
         void LogError(string message);
     }
 
-    // Консольная реализация логгера
     public class ConsoleLogger : ILogger
     {
         public void LogInfo(string message)
         {
-            Console.WriteLine($"[INFO] {DateTime.Now:HH:mm:ss.fff} {message}");
+            Console.WriteLine($"(лог INFO) {DateTime.Now:HH:mm:ss.fff} {message}");
         }
 
         public void LogWarning(string message)
         {
             // Жёлтый цвет для предупреждений
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"[WARN] {DateTime.Now:HH:mm:ss.fff} {message}");
+            Console.WriteLine($"(лог WARNING) {DateTime.Now:HH:mm:ss.fff} {message}");
             Console.ResetColor();
         }
 
@@ -30,7 +28,7 @@ namespace HttpDecoratorSystem.Services
         {
             // Красный цвет для ошибок
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"[ERROR] {DateTime.Now:HH:mm:ss.fff} {message}");
+            Console.WriteLine($"(лог ERROR) {DateTime.Now:HH:mm:ss.fff} {message}");
             Console.ResetColor();
         }
     }
