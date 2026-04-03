@@ -1,5 +1,5 @@
-﻿// Интерфейс валидатора токенов и его реализация
-// Эмулирует проверку токенов через базу данных или внешний сервис
+// Интерфейс валидатора токенов и его реализация
+// эмулируем проверку токенов через бд
 
 namespace HttpDecoratorSystem.Services
 {
@@ -8,7 +8,7 @@ namespace HttpDecoratorSystem.Services
         Task<TokenValidationResult> ValidateAsync(string token, CancellationToken ct = default);
     }
 
-    // Результат валидации токена
+    // результат валидации токена
     public class TokenValidationResult
     {
         public bool IsValid { get; set; }
@@ -23,18 +23,15 @@ namespace HttpDecoratorSystem.Services
         }
     }
 
-    // Эмуляция сервиса валидации токенов
-    // В реальном проекте здесь был бы запрос к Auth-сервису или БД
+    // эмуляция сервиса валидации токенов
     public class TokenValidator : ITokenValidator
     {
-        // Словарь валидных токенов (эмуляция базы данных)
         private readonly Dictionary<string, TokenValidationResult> _validTokens;
 
         public TokenValidator()
         {
             _validTokens = new Dictionary<string, TokenValidationResult>
             {
-                // Тестовые токены для демонстрации
                 ["valid_token_123"] = new TokenValidationResult
                 {
                     IsValid = true,
@@ -52,17 +49,15 @@ namespace HttpDecoratorSystem.Services
             };
         }
 
-        // Проверяет токен на валидность
+        // проверяет токен на валидность
         public async Task<TokenValidationResult> ValidateAsync(string token, CancellationToken ct = default)
         {
-            // Эмуляция задержки сети/БД (50мс)
             await Task.Delay(50, ct);
 
-            // Ищем токен в "базе данных"
             if (_validTokens.TryGetValue(token, out var result))
                 return result;
 
-            // Токен не найден
+            // не найден
             return new TokenValidationResult
             {
                 IsValid = false,
