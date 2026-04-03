@@ -1,4 +1,4 @@
-﻿// Интерфейс кэша и его in-memory реализация
+// Интерфейс кэша и его in-memory реализация
 // В реальном проекте здесь мог бы быть Redis или Memcached
 
 using HttpDecoratorSystem.Models;
@@ -15,7 +15,7 @@ namespace HttpDecoratorSystem.Services
     // Простая реализация кэша в памяти
     public class InMemoryCache : ICache
     {
-        // Хранилище кэша: ключ -> запись с временем истечения
+        // Хранилище кэша: ключ, запись с временем истечения
         private readonly Dictionary<string, CacheEntry> _cache;
 
         public InMemoryCache()
@@ -28,15 +28,15 @@ namespace HttpDecoratorSystem.Services
         {
             if (_cache.TryGetValue(key, out var entry))
             {
-                // Проверяем: не истёк ли срок жизни кэша
+                // не истёк ли срок жизни кэша
                 if (entry.ExpiresAt > DateTime.Now)
                     return Task.FromResult(entry.Response);
 
-                // Истёк — удаляем из кэша
+                // Истёк — удаляем 
                 _cache.Remove(key);
             }
 
-            // Не найдено в кэше
+            // не найдено в кэше
             return Task.FromResult<HttpResponse>(null);
         }
 
@@ -49,7 +49,7 @@ namespace HttpDecoratorSystem.Services
                 ExpiresAt = DateTime.Now.Add(ttl)  // Время истечения = сейчас + TTL
             };
 
-            Console.WriteLine($"[CACHE] Установлен ключ: {key} (TTL: {ttl.TotalSeconds}s)");
+            Console.WriteLine($"(кэш) Установлен ключ: {key}   TTL: {ttl.TotalSeconds}s");
             return Task.CompletedTask;
         }
 
