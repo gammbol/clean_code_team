@@ -6,6 +6,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "method_test", "abstract_met
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "afabric_game", "abstract_fabric\afabric_game.csproj", "{7ABA415F-EE52-4E82-A9C6-E8A6EAEC3E77}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "facade_bad", "facade_bad\facade_bad.csproj", "{C35624D0-4987-477B-9288-AB2B7B2F8343}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "facade_good", "facade_good\facade_good.csproj", "{26F78FE0-B3C0-4476-B43E-A5A96332CCD0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +28,13 @@ Global
 		{7ABA415F-EE52-4E82-A9C6-E8A6EAEC3E77}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7ABA415F-EE52-4E82-A9C6-E8A6EAEC3E77}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7ABA415F-EE52-4E82-A9C6-E8A6EAEC3E77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C35624D0-4987-477B-9288-AB2B7B2F8343}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C35624D0-4987-477B-9288-AB2B7B2F8343}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C35624D0-4987-477B-9288-AB2B7B2F8343}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C35624D0-4987-477B-9288-AB2B7B2F8343}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26F78FE0-B3C0-4476-B43E-A5A96332CCD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26F78FE0-B3C0-4476-B43E-A5A96332CCD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26F78FE0-B3C0-4476-B43E-A5A96332CCD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26F78FE0-B3C0-4476-B43E-A5A96332CCD0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
