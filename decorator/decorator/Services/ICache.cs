@@ -1,5 +1,4 @@
-// Интерфейс кэша и его in-memory реализация
-// В реальном проекте здесь мог бы быть Redis или Memcached
+// Интерфейс кэша 
 
 using HttpDecoratorSystem.Models;
 
