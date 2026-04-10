@@ -1,6 +1,5 @@
-﻿// Конкретный декоратор
-// Добавляет функциональность ПРОВЕРКИ АВТОРИЗАЦИИ.
-// Если токен невалиден — возвращает 401 Unauthorized и не вызывает следующие обработчики.
+// Конкретный декоратор
+// проверка авторизации
 
 namespace HttpDecoratorSystem.Decorators
 {
@@ -10,13 +9,12 @@ namespace HttpDecoratorSystem.Decorators
 
     public class AuthDecorator : RequestHandlerDecorator
     {
-        // Сервис валидации токенов (проверяет, действителен ли токен)
+        // проверяет действителен ли токен
         private readonly ITokenValidator _tokenValidator;
 
-        // Флаг: обязательна ли авторизация для этого эндпоинта
+        // обязательна ли авторизация для этого эндпоинта
         private readonly bool _requireAuth;
 
-        // Конструктор: принимает обработчик, валидатор и флаг обязательности
         public AuthDecorator(IHttpRequestHandler innerHandler,
             ITokenValidator tokenValidator,
             bool requireAuth = true)
@@ -26,37 +24,32 @@ namespace HttpDecoratorSystem.Decorators
             _requireAuth = requireAuth;
         }
 
-        // Переопределяем метод обработки, добавляя проверку авторизации
+        //  + проверку авторизации
         public override async Task<HttpResponse> HandleAsync(HttpRequest request, CancellationToken ct = default)
         {
-            //  Проверка токена 
+            //  проверка токена 
             if (_requireAuth)
             {
-                // Проверяем: есть ли токен в запросе
                 if (string.IsNullOrWhiteSpace(request.AuthToken))
                 {
-                    Console.WriteLine("[AUTH]Токен отсутствует");
-                    // Возвращаем ошибку 401 и НЕ вызываем следующие обработчики
+                    Console.WriteLine("(дек пути): Токен отсутствует");
                     return HttpResponse.Unauthorized("Требуется авторизация");
                 }
 
-                // Валидируем токен через сервис
+                // валидируем токен через сервис
                 var validationResult = await _tokenValidator.ValidateAsync(request.AuthToken, ct);
 
-                // Если токен невалиден — возвращаем ошибку
                 if (!validationResult.IsValid)
                 {
-                    Console.WriteLine($"[AUTH]Токен невалиден: {validationResult.ErrorMessage}");
+                    Console.WriteLine($"(дек пути): Токен невалиден: {validationResult.ErrorMessage}");
                     return HttpResponse.Unauthorized(validationResult.ErrorMessage);
                 }
 
-                // Сохраняем данные пользователя в запрос для следующих обработчиков
-                // Это нужно, чтобы базовый обработчик знал, кто сделал запрос
+                // сохраняем данные пользователя в запрос
                 request.UserId = validationResult.UserId;
-                Console.WriteLine($"[AUTH] Пользователь авторизован: {validationResult.Username}");
+                Console.WriteLine($"(дек пути): Пользователь авторизован: {validationResult.Username}");
             }
 
-            // Если авторизация успешна — передаём запрос дальше по цепочке
             return await _innerHandler.HandleAsync(request, ct);
         }
     }

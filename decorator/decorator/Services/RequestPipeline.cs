@@ -1,6 +1,5 @@
-﻿// Builder для сборки цепочки декораторов
-// Упрощает создание цепочки обработчиков.
-// Вместо вложенных конструкторов используем fluent-интерфейс.
+// для сборки цепочки декораторов
+
 
 namespace HttpDecoratorSystem.Services
 {
@@ -9,26 +8,25 @@ namespace HttpDecoratorSystem.Services
 
     public class RequestPipeline
     {
-        // Текущий обработчик в цепочке
+        // текущий обработчик в цепочке
         private IHttpRequestHandler _handler;
 
-        // Конструктор: начинает цепочку с базового обработчика
+        // начинает цепочку с базового обработчика
         public RequestPipeline(IHttpRequestHandler rootHandler)
         {
             _handler = rootHandler;
         }
 
 
-        // Добавляет декоратор логирования в цепочку
+        // добавляем декоратор логирования в цепочку
         public RequestPipeline WithLogging(ILogger logger)
         {
-            // Оборачиваем текущий обработчик в LoggingDecorator
             _handler = new LoggingDecorator(_handler, logger);
-            return this;  // Возвращаем this для fluent-интерфейса
+            return this;  
         }
 
 
-        // Добавляет декоратор авторизации в цепочку
+        // добавляем декоратор авторизации в цепочку
         public RequestPipeline WithAuth(ITokenValidator validator, bool requireAuth = true)
         {
             _handler = new AuthDecorator(_handler, validator, requireAuth);
@@ -36,7 +34,7 @@ namespace HttpDecoratorSystem.Services
         }
 
 
-        // Добавляет декоратор кэширования в цепочку
+        // добавляем декоратор кэширования в цепочку
         public RequestPipeline WithCaching(ICache cache, TimeSpan ttl, bool onlyForGet = true)
         {
             _handler = new CachingDecorator(_handler, cache, ttl, onlyForGet);
@@ -44,7 +42,7 @@ namespace HttpDecoratorSystem.Services
         }
 
 
-        // Добавляет декоратор ограничения частоты в цепочку
+        // добавляем декоратор ограничения частоты в цепочку
         public RequestPipeline WithRateLimit(IRateLimiter limiter)
         {
             _handler = new RateLimitDecorator(_handler, limiter);
@@ -52,7 +50,7 @@ namespace HttpDecoratorSystem.Services
         }
 
 
-        // Возвращает готовый обработчик со всеми декораторами
+        // возвращает готовый обработчик со всеми декораторами
         public IHttpRequestHandler Build() => _handler;
     }
 }
