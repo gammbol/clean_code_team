@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CadCompositePattern
+namespace ServerMonitoringComposite
 {
     class Program
     {

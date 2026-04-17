@@ -1,58 +1,55 @@
-namespace CadCompositePattern
+namespace ServerMonitoringComposite
 {
     public class CompositeDemo
     {
         public void Run()
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            Console.WriteLine("Паттерн Composite: CAD-система\n");
 
-            // Создаём простые фигуры
-            var circle1 = new Circle("Круг 1", 10, 10, 5);
-            var circle2 = new Circle("Круг 2", 30, 20, 3);
-            var rect1 = new Rectangle("Прям 1", 100, 100, 40, 20);
-            var rect2 = new Rectangle("Прям 2", 200, 150, 30, 30);
+            // Создаём серверы с метриками
+            var webServer = new Server("WEB-01");
+            webServer.Add(new CpuMetric("WEB-01"));
+            webServer.Add(new RamMetric("WEB-01"));
+            webServer.Add(new DiskMetric("WEB-01", "C:"));
 
-            // Создаём группу и добавляем в неё фигуры
-            var groupA = new Group("Группа A");
-            groupA.Add(circle1);
-            groupA.Add(rect1);
-            
-            var groupB = new Group("Группа B");
-            groupB.Add(circle2);
-            groupB.Add(rect2);
+            var dbServer = new Server("DB-01");
+            dbServer.Add(new CpuMetric("DB-01"));
+            dbServer.Add(new RamMetric("DB-01"));
+            dbServer.Add(new DiskMetric("DB-01", "C:"));
+            dbServer.Add(new DiskMetric("DB-01", "D:"));
 
-            // Создаём корневую группу (весь чертёж)
-            var rootGroup = new Group("Чертёж");
-            rootGroup.Add(groupA);
-            rootGroup.Add(groupB);
-            rootGroup.Add(new Rectangle("Отдельный прям", 50, 50, 20, 20));
+            var cacheServer = new Server("REDIS-01");
+            cacheServer.Add(new CpuMetric("REDIS-01"));
+            cacheServer.Add(new RamMetric("REDIS-01"));
 
-            Console.WriteLine("\nОтрисовка всей иерархии");
-            rootGroup.Draw();
+            // Группируем в кластер
+            var productionCluster = new Cluster("Production");
+            productionCluster.Add(webServer);
+            productionCluster.Add(dbServer);
+            productionCluster.Add(cacheServer);
 
-            Console.WriteLine("\nВычисление общей площади");
-            Console.WriteLine($"Общая площадь всех фигур: {rootGroup.GetArea():F2}");
+            var backupCluster = new Cluster("Backup");
+            var backupServer = new Server("BACKUP-01");
+            backupServer.Add(new CpuMetric("BACKUP-01"));
+            backupServer.Add(new DiskMetric("BACKUP-01", "BackupDisk"));
+            backupCluster.Add(backupServer);
 
-            Console.WriteLine("\nПеремещение всей группы на (5, -5)");
-            rootGroup.Move(5, -5);
+            // Дата-центр
+            var dataCenter = new DataCenter("Москва");
+            dataCenter.Add(productionCluster);
+            dataCenter.Add(backupCluster);
 
-            Console.WriteLine("\nОтрисовка после перемещения");
-            rootGroup.Draw();
+            // Отображаем всю иерархию
+            Console.WriteLine("Иерархия мониторинга");
+            dataCenter.Display();
 
-            Console.WriteLine("\nРабота с отдельным элементом через единый интерфейс");
+            // Работа с отдельным сервером через единый интерфейс
+            Console.WriteLine("\nРабота с отдельным сервером через интерфейс MonitoringComponent");
+            MonitoringComponent singleServer = webServer;
+            singleServer.Display();
 
-            // Единообразное обращение к простой фигуре
-            Graphic singleShape = circle1;
-            singleShape.Draw();
-            Console.WriteLine($"Площадь: {singleShape.GetArea():F2}");
-            singleShape.Move(10, 0);
-            
-            // И к группе
-            Graphic groupAsShape = groupA;
-            groupAsShape.Draw();
-            Console.WriteLine($"Площадь группы: {groupAsShape.GetArea():F2}");
-            groupAsShape.Move(-5, 5);
+            // Вычисление суммарной нагрузки в дата-центре
+            Console.WriteLine($"\nСуммарная нагрузка дата-центра: {dataCenter.GetCurrentLoad():F1}%");
         }
     }
 }
