@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "facade_good", "facade_good\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "proxy", "proxy\proxy.csproj", "{A6BEC869-40D8-47B5-AB5A-81E1C6EB8FEE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationApp", "NotificationApp\NotificationApp.csproj", "{BC67CD84-FC97-4BF5-B649-55E375F8F0D6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{A6BEC869-40D8-47B5-AB5A-81E1C6EB8FEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6BEC869-40D8-47B5-AB5A-81E1C6EB8FEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6BEC869-40D8-47B5-AB5A-81E1C6EB8FEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC67CD84-FC97-4BF5-B649-55E375F8F0D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC67CD84-FC97-4BF5-B649-55E375F8F0D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC67CD84-FC97-4BF5-B649-55E375F8F0D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC67CD84-FC97-4BF5-B649-55E375F8F0D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
