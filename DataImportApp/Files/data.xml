@@ -1,0 +1,17 @@
+<users>
+    <user>
+        <id>1</id>
+        <name>Alex</name>
+        <age>21</age>
+    </user>
+    <user>
+        <id>2</id>
+        <name>Maria</name>
+        <age>19</age>
+    </user>
+    <user>
+        <id>3</id>
+        <name>Ivan</name>
+        <age>25</age>
+    </user>
+</users>
