@@ -1,21 +1,24 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 
-// Отвечает за создание всех компонентов системы и запуск сценариев
+// Отвечает за создание всех компонентов системы и управление заказами
 public class ScenarioManager
 {
-    // сервисы с бизнес-логикой
+    // Сервисы с бизнес-логикой (Receivers)
     private readonly KitchenService _kitchen;
     private readonly PaymentService _payment;
     private readonly CourierService _courier;
     private readonly NotificationService _notification;
 
-    // диспетчер очереди и истории
+    // Диспетчер очереди и истории (Invoker)
     private readonly OrderDispatcher _dispatcher;
 
-    private Order _order1;
-    private Order _order2;
-    private Order _order3;
+    // Счётчик заказов для генерации ID
+    private int _orderCounter = 0;
+
+    // Список созданных заказов (для отображения истории)
+    private readonly List<Order> _orders = new();
 
     public ScenarioManager()
     {
@@ -26,144 +29,137 @@ public class ScenarioManager
         _dispatcher = new OrderDispatcher();
     }
 
-
+    // Запуск системы - диспетчер работает непрерывно
     public void Run()
     {
-        Console.WriteLine("СИСТЕМА ОБРАБОТКИ ЗАКАЗОВ ДОСТАВКИ");
-        Console.WriteLine("Демонстрация паттерна Command\n");
-        PrintSeparator();
+        Console.WriteLine("\nЗАПУСК СИСТЕМЫ...\n");
 
-        // Запускаем фоновый обработчик очереди
+        // Запускаем фоновый обработчик очереди. Он будет работать постоянно, пока не вызовем Stop()
         _dispatcher.StartWorker();
 
-        // Запускаем сценарии 
-        RunScenario1_SingleCommands();
-        RunScenario2_MacroCommand();
-        RunScenario3_UndoOperations();
-        RunScenario4_UndoMacroCommand();
-        RunScenario5_ComplexCancellation();
-
-        PrintFinalStats();
-
-        // останавливаем диспетчер
-        _dispatcher.StopWorker();
+        Console.WriteLine("Система готова к приёму заказов");
+        Console.WriteLine("Диспетчер работает в фоновом режиме\n");
     }
 
-    // Сценарий 1: Демонстрация отдельных команд в очереди
-    private void RunScenario1_SingleCommands()
+    // Метод 1: Создать простой заказ (отдельные команды)
+    public void CreateSimpleOrder()
     {
-        Console.WriteLine("\nСЦЕНАРИЙ 1: Отдельные команды в очереди");
-        PrintSeparator();
+        _orderCounter++;
+        var order = new Order(
+            _orderCounter,
+            $"Клиент {_orderCounter}",
+            $"Адрес {_orderCounter}",
+            1000 + (_orderCounter * 100)
+        );
 
-        _order1 = new Order(1, "Иванов Иван", "ул. Ленина 10, кв. 5", 1500);
-        Console.WriteLine($"Создан заказ: {_order1}\n");
+        _orders.Add(order);
 
-        var chargeCmd = new ChargePaymentCommand(_payment, _order1);
-        var prepareCmd = new PrepareOrderCommand(_kitchen, _order1);
+        Console.WriteLine($"\nСОЗДАН ЗАКАЗ #{order.Id}");
+        Console.WriteLine(order);
 
-        Console.WriteLine("CLIENT:   Отправка команд в очередь...");
+        // Создаём команды
+        var chargeCmd = new ChargePaymentCommand(_payment, order);
+        var prepareCmd = new PrepareOrderCommand(_kitchen, order);
+
+        // Отправляем в очередь
+        Console.WriteLine("\nОтправка команд в очередь...");
         _dispatcher.Enqueue(chargeCmd);
         _dispatcher.Enqueue(prepareCmd);
 
-        WaitForProcessing(2);
+        Console.WriteLine("Заказ добавлен в очередь обработки");
     }
 
-    // Сценарий 2: Макрокоманда группировка команд 
-    private void RunScenario2_MacroCommand()
+    // Метод 2: Создать заказ с полной обработкой (макрокоманда)
+    public void CreateFullOrder()
     {
-        Console.WriteLine("\nСЦЕНАРИЙ 2: Макрокоманда (пакетная операция)");
-        PrintSeparator();
-
-        _order2 = new Order(2, "Петрова Мария", "пр. Мира 25, офис 301", 2800);
-        Console.WriteLine($"Создан заказ: {_order2}\n");
-
-        var processOrderMacro = new MacroCommand(
-            "Полная обработка заказа #2",
-            new ChargePaymentCommand(_payment, _order2),
-            new PrepareOrderCommand(_kitchen, _order2),
-            new AssignCourierCommand(_courier, _order2)
+        _orderCounter++;
+        var order = new Order(
+            _orderCounter,
+            $"VIP Клиент {_orderCounter}",
+            $"VIP Адрес {_orderCounter}",
+            2500 + (_orderCounter * 200)
         );
 
-        _dispatcher.Enqueue(processOrderMacro);
-        WaitForProcessing(3);
+        _orders.Add(order);
+
+        Console.WriteLine($"\nСОЗДАН VIP ЗАКАЗ #{order.Id}");
+        Console.WriteLine(order);
+
+        // Создаём макрокоманду "Полная обработка"
+        var fullProcessMacro = new MacroCommand(
+            $"Полная обработка заказа #{order.Id}",
+            new ChargePaymentCommand(_payment, order),
+            new PrepareOrderCommand(_kitchen, order),
+            new AssignCourierCommand(_courier, order)
+        );
+
+        // Отправляем макрокоманду в очередь
+        Console.WriteLine("\nОтправка макрокоманды в очередь...");
+        _dispatcher.Enqueue(fullProcessMacro);
+
+        Console.WriteLine("VIP заказ добавлен в очередь");
     }
 
-    // Сценарий 3: Отмена операций (Undo)
-    private void RunScenario3_UndoOperations()
+    // Метод 3: Отменить последнюю операцию
+    public void UndoLastOperation()
     {
-        Console.WriteLine("\nСЦЕНАРИЙ 3: Отмена последних операций (Undo)");
-        PrintSeparator();
-        Console.WriteLine("CLIENT:   Отменяем 2 последние операции...");
+        Console.WriteLine("\nОтмена последней операции...");
         _dispatcher.UndoLast();
-        WaitForProcessing(1);
-        _dispatcher.UndoLast();
-        WaitForProcessing(1);
     }
 
-    // Сценарий 4: Отмена макрокоманды целиком
-    private void RunScenario4_UndoMacroCommand()
+    // Метод 4: Показать статус системы
+    public void PrintStatus()
     {
-        Console.WriteLine("\nСЦЕНАРИЙ 4: Отмена макрокоманды (полный откат)");
-        PrintSeparator();
-
-        _order3 = new Order(3, "Сидоров Алексей", "ул. Гагарина 8", 950);
-        Console.WriteLine($"Создан заказ: {_order3}\n");
-
-        var processOrderMacro = new MacroCommand(
-            "Полная обработка заказа #3",
-            new ChargePaymentCommand(_payment, _order3),
-            new PrepareOrderCommand(_kitchen, _order3),
-            new AssignCourierCommand(_courier, _order3)
-        );
-
-        _dispatcher.Enqueue(processOrderMacro);
-        WaitForProcessing(3);
-
-        // если макрокоманда частично выполнилась, Undo откатывает всё в обратном порядке
-        Console.WriteLine("\nCLIENT:   Отмена всей макрокоманды...");
-        _dispatcher.UndoLast();
-        WaitForProcessing(2);
-    }
-
-    // Сценарий 5: полная отмена заказа
-    private void RunScenario5_ComplexCancellation()
-    {
-        Console.WriteLine("\nСЦЕНАРИЙ 5: Специальная команда отмены заказа");
-        PrintSeparator();
-
-        var completeOrder1 = new MacroCommand(
-            "Завершение заказа #1",
-            new AssignCourierCommand(_courier, _order1),
-            new PrepareOrderCommand(_kitchen, _order1)
-        );
-        _dispatcher.Enqueue(completeOrder1);
-        WaitForProcessing(2);
-
-        // Команда отмены работает с тем же объектом _order1
-        var cancelOrderCmd = new CancelOrderCommand(
-            _payment, _kitchen, _courier, _notification,
-            _order1 // Передаём ссылку на существующий заказ
-        );
-        Console.WriteLine("CLIENT:   Полная отмена заказа с компенсацией...");
-        _dispatcher.Enqueue(cancelOrderCmd);
-        WaitForProcessing(2);
-    }
-
-
-    private void WaitForProcessing(int seconds)
-    {
-        Thread.Sleep(seconds * 1000);
-    }
-
-    private void PrintSeparator()
-    {
-        Console.WriteLine(new string('-', 30));
-    }
-
-    private void PrintFinalStats()
-    {
-        Console.WriteLine("\nФИНАЛЬНАЯ СТАТИСТИКА:");
-        PrintSeparator();
+        Console.WriteLine("\nСТАТУС СИСТЕМЫ:");
         _dispatcher.PrintStatus();
+    }
+
+    // Метод 5: Показать историю заказов
+    public void PrintOrderHistory()
+    {
+        Console.WriteLine("\nИСТОРИЯ ЗАКАЗОВ:");
+        Console.WriteLine(new string('-', 50));
+
+        if (_orders.Count == 0)
+        {
+            Console.WriteLine("Пока нет заказов");
+        }
+        else
+        {
+            foreach (var order in _orders)
+            {
+                Console.WriteLine(order);
+            }
+        }
+
+        Console.WriteLine(new string('-', 50));
+        Console.WriteLine($"Всего заказов: {_orders.Count}");
+    }
+
+    // Метод 6: Демо-сценарий (несколько заказов подряд)
+    public void RunDemoScenario()
+    {
+        Console.WriteLine("\nЗАПУСК ДЕМО-СЦЕНАРИЯ (3 заказа подряд)...\n");
+
+        // Заказ 1: Простой
+        CreateSimpleOrder();
+        Thread.Sleep(1000);
+
+        // Заказ 2: VIP
+        CreateFullOrder();
+        Thread.Sleep(1000);
+
+        // Заказ 3: Ещё один простой
+        CreateSimpleOrder();
+        Thread.Sleep(1000);
+
+        Console.WriteLine("\nДемо-сценарий завершён");
+        Console.WriteLine("Система продолжает работу и ждёт новые заказы...\n");
+    }
+
+    // Остановка системы 
+    public void Stop()
+    {
+        _dispatcher.StopWorker();
     }
 }
