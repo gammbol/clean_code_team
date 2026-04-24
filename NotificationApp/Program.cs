@@ -1,40 +1,30 @@
-﻿using NotificationApp.Core.Models;
-using NotificationApp.Core.Services;
-using NotificationApp.Strategies;
-using NotificationApp.Infrastructure;
+﻿using NotificationApp.Models;
+using NotificationApp.Services;
 
-namespace NotificationApp
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+var factory = new NotificationStrategyFactory();
+
+app.MapPost("/api/user_reg", async (NotificationRequest req) =>
 {
-    internal class Program
-    {
-        static void Main(string[] args)
-        {
-            var emailClient = new EmailClient();
-            var smsGateway = new SmsGateway();
-            var pushProvider = new PushProvider();
+    var strategy = factory.GetStrategy("email");
+    await strategy.SendAsync(req);
+    return Results.Ok("User registration notification sent");
+});
 
-            var notification = new Notification
-            {
-                Recipient = "user@test.com",
-                Message = "Добро пожаловать в систему!"
-            };
+app.MapPost("/api/password_reset", async (NotificationRequest req) =>
+{
+    var strategy = factory.GetStrategy("sms");
+    await strategy.SendAsync(req);
+    return Results.Ok("Password reset notification sent");
+});
 
-            // выбираем стратегию
-            var emailStrategy = new EmailNotificationStrategy(emailClient);
-            var service = new NotificationService(emailStrategy);
+app.MapPost("/api/order_created", async (NotificationRequest req) =>
+{
+    var strategy = factory.GetStrategy("push");
+    await strategy.SendAsync(req);
+    return Results.Ok("Order notification sent");
+});
 
-            service.Send(notification);
-
-            Console.WriteLine("\nСмена стратегии...\n");
-
-            // меняем стратегию на лету
-            service.SetStrategy(new SmsNotificationStrategy(smsGateway));
-            service.Send(notification);
-
-            Console.WriteLine("\nЕще смена...\n");
-
-            service.SetStrategy(new PushNotificationStrategy(pushProvider));
-            service.Send(notification);
-        }
-    }
-}
+app.Run();

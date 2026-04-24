@@ -1,21 +1,14 @@
-using NotificationApp.Core.Interfaces;
-using NotificationApp.Core.Models;
-using NotificationApp.Infrastructure;
+using NotificationApp.Abstractions;
+using NotificationApp.Models;
 
 namespace NotificationApp.Strategies
 {
     public class SmsNotificationStrategy : INotificationStrategy
     {
-        private readonly SmsGateway _gateway;
-
-        public SmsNotificationStrategy(SmsGateway gateway)
+        public Task SendAsync(NotificationRequest request)
         {
-            _gateway = gateway;
-        }
-
-        public void Send(Notification notification)
-        {
-            _gateway.SendSms(notification.Recipient, notification.Message);
+            Console.WriteLine($"[SMS] to {request.UserId}: {request.Message}");
+            return Task.CompletedTask;
         }
     }
 }

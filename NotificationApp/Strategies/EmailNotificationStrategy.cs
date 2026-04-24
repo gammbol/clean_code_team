@@ -1,21 +1,14 @@
-using NotificationApp.Core.Interfaces;
-using NotificationApp.Core.Models;
-using NotificationApp.Infrastructure;
+using NotificationApp.Abstractions;
+using NotificationApp.Models;
 
 namespace NotificationApp.Strategies
 {
     public class EmailNotificationStrategy : INotificationStrategy
     {
-        private readonly EmailClient _client;
-
-        public EmailNotificationStrategy(EmailClient client)
+        public Task SendAsync(NotificationRequest request)
         {
-            _client = client;
-        }
-
-        public void Send(Notification notification)
-        {
-            _client.SendEmail(notification.Recipient, notification.Message);
+            Console.WriteLine($"[EMAIL] to {request.UserId}: {request.Message}");
+            return Task.CompletedTask;
         }
     }
 }
