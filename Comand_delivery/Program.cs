@@ -15,16 +15,16 @@ class Program
         // Создаём менеджер сценариев
         var scenarioManager = new ScenarioManager();
 
-        // Запускаем систему (диспетчер работает непрерывно)
+        // Запускаем систему 
         scenarioManager.Run();
 
-        // Интерактивное меню - программа НЕ завершается
+        // Интерактивное меню 
         ShowInteractiveMenu(scenarioManager);
     }
 
 
 
-    // Интерактивное меню для демонстрации непрерывной работы
+    // Интерактивное меню 
     static void ShowInteractiveMenu(ScenarioManager manager)
     {
         bool running = true;
