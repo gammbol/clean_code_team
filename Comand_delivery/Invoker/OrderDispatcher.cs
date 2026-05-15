@@ -1,16 +1,28 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
-// Отправитель - диспетчер заказов
+// Invoker - диспетчер заказов
 public class OrderDispatcher
 {
+    // Потокобезопасная очередь команд
     private readonly ConcurrentQueue<ICommand> _commandQueue = new();
+
+    // История выполненных команд для Undo
     private readonly CommandHistory _history;
+
+    // Флаг работы системы
     private bool _isRunning;
+
+    // Задача фонового обработчика
     private Task? _workerTask;
+
+    // Токен для остановки
     private CancellationTokenSource? _cancellationTokenSource;
+
+    // Счётчик выполненных команд
+    private int _commandsExecuted = 0;
 
     public OrderDispatcher()
     {
@@ -18,94 +30,119 @@ public class OrderDispatcher
         _isRunning = false;
     }
 
-    // Метод добавления команды в очередь 
+    // Добавление команды в очередь
     public void Enqueue(ICommand command)
     {
-        Console.WriteLine($"\nDISPATCHER:     Получена команда: {command.Description}");
+        Console.WriteLine($"\nDISPATCHER: Получена команда: {command.Description}");
         _commandQueue.Enqueue(command);
-        Console.WriteLine($"DISPATCHER:     Команда добавлена в очередь (в очереди: {_commandQueue.Count})");
+        Console.WriteLine($"DISPATCHER: Команда в очереди (всего: {_commandQueue.Count})");
     }
 
+    // Запуск непрерывного обработчика
     public void StartWorker()
     {
         if (_isRunning)
         {
-            Console.WriteLine("DISPATCHER:     Обработчик уже запущен");
+            Console.WriteLine("Обработчик уже запущен");
             return;
         }
-        Console.WriteLine("\nDISPATCHER:     Запуск фонового обработчика очереди...");
+
+        Console.WriteLine("Запуск фонового обработчика очереди...");
         _isRunning = true;
         _cancellationTokenSource = new CancellationTokenSource();
+
+        // Запускаем фоновую задачу
         _workerTask = Task.Run(() => ProcessQueueAsync(_cancellationTokenSource.Token));
-        Console.WriteLine("DISPATCHER:     Обработчик запущен\n");
+
+        Console.WriteLine("Обработчик запущен и готов к работе\n");
     }
 
+    // Непрерывная обработка очереди
     private async Task ProcessQueueAsync(CancellationToken cancellationToken)
     {
-        while (!cancellationToken.IsCancellationRequested || !_commandQueue.IsEmpty)
+        Console.WriteLine("Обработчик слушает очередь...\n");
+
+        // Цикл работает ПОСТОЯННО, пока не вызовут Stop()
+        while (!cancellationToken.IsCancellationRequested)
         {
-            // TryDequeue потокобезопасен
+            // Пытаемся взять команду из очереди
             if (_commandQueue.TryDequeue(out var command))
             {
                 try
                 {
-                    command.Execute();
-                    _history.Push(command);
-                    await Task.Delay(500, cancellationToken);
+                    // Выполняем команду
+                    await ExecuteCommandAsync(command, cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"\nERROR:   Ошибка при выполнении команды: {ex.Message}");
+                    Console.WriteLine($"\nERROR: Ошибка при выполнении: {ex.Message}");
                 }
             }
             else
             {
+                // Если очередь пуста - ждём немного и проверяем снова. Система не завершается, а продолжает работать
                 await Task.Delay(100, cancellationToken);
             }
         }
     }
 
+    // Асинхронное выполнение команды
+    private async Task ExecuteCommandAsync(ICommand command, CancellationToken cancellationToken)
+    {
+        Console.WriteLine($"\nВЫПОЛНЕНИЕ: {command.Description}");
+
+        try
+        {
+            // Выполняем команду
+            command.Execute();
+
+            // Добавляем в историю для Undo
+            _history.Push(command);
+
+            // Увеличиваем счётчик
+            _commandsExecuted++;
+
+            // Имитация обработки
+            await Task.Delay(300, cancellationToken);
+
+            Console.WriteLine($"Команда выполнена (всего выполнено: {_commandsExecuted})");
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine($"Команда отменена: {command.Description}");
+            throw;
+        }
+    }
+
+    // Отмена последней операции
     public void UndoLast()
     {
-        Console.WriteLine("\nDISPATCHER:     Запрошена отмена последней операции...");
+        Console.WriteLine("\nDISPATCHER: Отмена последней операции...");
+
         var command = _history.Pop();
         if (command != null)
         {
             command.Undo();
-            Console.WriteLine("DISPATCHER:     Последняя команда отменена\n");
+            Console.WriteLine("Последняя команда отменена");
         }
     }
 
-    public void UndoMultiple(int count)
-    {
-        Console.WriteLine($"\nDISPATCHER:     Запрошена отмена {count} последних операций...");
-        for (int i = 0; i < count; i++)
-        {
-            if (_history.CanUndo)
-            {
-                var command = _history.Pop();
-                command?.Undo();
-            }
-            else
-            {
-                Console.WriteLine($"DISPATCHER:     Отменено {i} команд. Больше нет команд для отмены.");
-                break;
-            }
-        }
-        Console.WriteLine("DISPATCHER:     Множественная отмена завершена\n");
-    }
-
+    // Остановка системы (только при выходе)
     public void StopWorker()
     {
         if (!_isRunning)
         {
-            Console.WriteLine("DISPATCHER:     Обработчик уже остановлен");
+            Console.WriteLine("Обработчик уже остановлен");
             return;
         }
-        Console.WriteLine("\nDISPATCHER:     Остановка фонового обработчика...");
+
+        Console.WriteLine("\nОстановка системы...");
         _isRunning = false;
+
+        // Отменяем токен
         _cancellationTokenSource?.Cancel();
 
+        // Ждём завершения задачи
         try
         {
             _workerTask?.Wait();
@@ -113,30 +150,27 @@ public class OrderDispatcher
         catch (AggregateException ex)
         {
             if (ex.InnerException is TaskCanceledException)
-                Console.WriteLine("DISPATCHER:     Задача успешно отменена");
-            else
-                Console.WriteLine($"DISPATCHER:     Ошибка при остановке: {ex.InnerException?.Message}");
+            {
+                Console.WriteLine("Задача успешно остановлена");
+            }
         }
         catch (TaskCanceledException)
         {
-            Console.WriteLine("DISPATCHER:     Задача успешно отменена");
+            Console.WriteLine("Задача успешно остановлена");
         }
-        Console.WriteLine("DISPATCHER:     Обработчик остановлен\n");
+
+        Console.WriteLine($"Итого выполнено команд: {_commandsExecuted}");
+        Console.WriteLine("Система остановлена\n");
     }
 
+
+    // Показать статус
     public void PrintStatus()
     {
-        Console.WriteLine("------------------\n");
         Console.WriteLine($"СТАТУС ДИСПЕТЧЕРА:");
-        Console.WriteLine($"  Команд в очереди: {_commandQueue.Count}");
-        Console.WriteLine($"  Команд в истории: {_history.Count}");
-        Console.WriteLine($"  Обработчик активен: {_isRunning}");
-        Console.WriteLine("-----------------\n");
-    }
-
-    public void ClearQueue()
-    {
-        while (!_commandQueue.IsEmpty) _commandQueue.TryDequeue(out _);
-        Console.WriteLine("DISPATCHER:     Очередь очищена");
+        Console.WriteLine($"Команд в очереди: {_commandQueue.Count}");
+        Console.WriteLine($"Команд в истории: {_history.Count}");
+        Console.WriteLine($"Выполнено команд: {_commandsExecuted}");
+        Console.WriteLine($"Система активна: {_isRunning}");
     }
 }
