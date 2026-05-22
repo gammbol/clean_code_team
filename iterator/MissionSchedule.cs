@@ -19,5 +19,23 @@ namespace IteratorPatternExample
         {
             return new MissionIterator(_stages);
         }
+
+        public IMissionIterator CreateReverseIterator()
+        {
+            return new ReverseMissionIterator(_stages);
+        }
+
+        public IMissionIterator CreateEvenIterator()
+        {
+            return new EvenStageIterator(_stages);
+        }
+
+        public IMissionIterator CreateLongDurationIterator(
+            int minimumDays)
+        {
+            return new LongDurationIterator(
+                _stages,
+                minimumDays);
+        }
     }
 }

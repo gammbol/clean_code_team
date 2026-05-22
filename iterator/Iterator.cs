@@ -27,10 +27,25 @@ namespace IteratorPatternExample
             MissionSchedule schedule =
                 CreateSchedule();
 
-            IMissionIterator iterator =
-                CreateIterator(schedule);
+            Console.WriteLine("FORWARD ITERATOR\n");
 
-            PrintSchedule(iterator);
+            MissionPrinter.Print(
+                schedule.CreateIterator());
+
+            Console.WriteLine("\nREVERSE ITERATOR\n");
+
+            MissionPrinter.Print(
+                schedule.CreateReverseIterator());
+
+            Console.WriteLine("\nEVEN INDEX ITERATOR\n");
+
+            MissionPrinter.Print(
+                schedule.CreateEvenIterator());
+
+            Console.WriteLine("\nLONG DURATION ITERATOR\n");
+
+            MissionPrinter.Print(
+                schedule.CreateLongDurationIterator(10));
         }
 
         private static MissionSchedule CreateSchedule()
