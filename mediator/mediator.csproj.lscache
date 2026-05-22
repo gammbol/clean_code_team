@@ -53,6 +53,7 @@ TemporaryDependencyNodeTargetIdentifier=net9.0
 /warnaserror+:NU1605,SYSLIB0011
 
 [sourceFiles]
+DefenseSecretary.cs
 IThesisMediator.cs
 Mediator.cs
 obj/Debug/net9.0/
@@ -60,6 +61,9 @@ obj/Debug/net9.0/
  mediator.AssemblyInfo.cs
  mediator.GlobalUsings.g.cs
 Participant.cs
+Reviewer.cs
+Student.cs
+Supervisor.cs
 ThesisCoordinator.cs
 
 [metadataReferences]

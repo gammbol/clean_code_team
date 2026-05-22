@@ -18,7 +18,7 @@ namespace IteratorPatternExample
 
         public override string ToString()
         {
-            return $"Stage: {StageName}, Duration: {DurationInDays} days";
+            return $"Стадия: {StageName}, Продолжительность: {DurationInDays} дней";
         }
     }
 }

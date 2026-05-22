@@ -3,139 +3,56 @@ using System.Collections.Generic;
 
 namespace MediatorPatternExample
 {
-    // Студент
-    public class Student : Participant
-    {
-        public Student(
-            string name,
-            IThesisMediator mediator)
-            : base(name, mediator)
-        {
-        }
-
-        public void SubmitThesis(string thesisTitle)
-        {
-            Mediator.SubmitThesis(
-                Name,
-                thesisTitle);
-        }
-
-        public void ReceiveReview(
-            string reviewerName,
-            string reviewText)
-        {
-            Console.WriteLine(
-                $"[Студент: {Name}] Получил оценку от {reviewerName}: {reviewText}");
-        }
-    }
-
-    // Рецензент
-    public class Reviewer : Participant
-    {
-        public Reviewer(
-            string name,
-            IThesisMediator mediator)
-            : base(name, mediator)
-        {
-        }
-
-        public void ReceiveThesis(
-            string studentName,
-            string thesisTitle)
-        {
-            Console.WriteLine(
-                $"[Рецезент: {Name}] Получил дипломную работу '{thesisTitle}' от {studentName}");
-        }
-
-        public void SendReview(
-            string studentName,
-            string reviewText)
-        {
-            Mediator.SendReview(
-                Name,
-                studentName,
-                reviewText);
-        }
-    }
-
     internal class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
-            ThesisCoordinator coordinator =
-                CreateCoordinator();
+            var coordinator = new ThesisCoordinator();
 
-            Student student =
-                CreateStudent(coordinator);
+            // Создаём участников
+            var student = new Student("Анна Иванова", coordinator);
+            var reviewer1 = new Reviewer("Проф. Михаил Сергеев", coordinator);
+            var reviewer2 = new Reviewer("Проф. Елена Петрова", coordinator);
+            var supervisor = new Supervisor("Д-р. Ольга Смирнова", coordinator);
+            var secretary = new DefenseSecretary("Андрей Захаров", coordinator);
 
-            List<Reviewer> reviewers =
-                CreateReviewers(coordinator);
-
-            RegisterParticipants(
-                coordinator,
-                student,
-                reviewers);
-
-            RunScenario(
-                student,
-                reviewers);
-        }
-
-        private static ThesisCoordinator CreateCoordinator()
-        {
-            return new ThesisCoordinator();
-        }
-
-        private static Student CreateStudent(
-            ThesisCoordinator coordinator)
-        {
-            return new Student(
-                "Баха",
-                coordinator);
-        }
-
-        private static List<Reviewer> CreateReviewers(
-            ThesisCoordinator coordinator)
-        {
-            return new List<Reviewer>
-            {
-                new Reviewer(
-                    "Профессор Михаил",
-                    coordinator),
-
-                new Reviewer(
-                    "Профессор Мухаммед",
-                    coordinator)
-            };
-        }
-
-        private static void RegisterParticipants(
-            ThesisCoordinator coordinator,
-            Student student,
-            List<Reviewer> reviewers)
-        {
+            // Регистрация
             coordinator.RegisterStudent(student);
+            coordinator.RegisterReviewer(reviewer1);
+            coordinator.RegisterReviewer(reviewer2);
+            coordinator.RegisterSupervisor(supervisor);
+            coordinator.RegisterDefenseSecretary(secretary);
 
-            foreach (Reviewer reviewer in reviewers)
-            {
-                coordinator.RegisterReviewer(reviewer);
-            }
-        }
+            Console.WriteLine("\n--- Шаг 1: Подача дипломной работы ---");
+            student.SubmitThesis("Применение ИИ в медицине");
 
-        private static void RunScenario(
-            Student student,
-            List<Reviewer> reviewers)
-        {
-            student.SubmitThesis(
-                "Машинное обучение в здравоохранении");
+            Console.WriteLine("\n--- Шаг 2: Рецензенты дают отзывы ---");
+            reviewer1.SendReview("Анна Иванова", "Хорошая структура, но не хватает экспериментов.");
+            reviewer2.SendReview("Анна Иванова", "Тема актуальна, требуется доработка выводов.");
 
-            reviewers[0].SendReview(
-                "Баха",
-                "Отличная форма! Добавь больше статистики.");
+            Console.WriteLine("\n--- Шаг 3: Руководитель просит доработку ---");
+            supervisor.RequestRevision("Анна Иванова", "Добавьте сравнительный анализ с существующими методами.");
 
-            reviewers[1].SendReview(
-                "Баха",
-                "Исправь заключение.");
+            Console.WriteLine("\n--- Шаг 4: Студент отправляет исправленную версию ---");
+            student.SubmitRevisedThesis("Применение ИИ в медицине (исправленная)");
+
+            Console.WriteLine("\n--- Шаг 5: Повторные отзывы рецензентов ---");
+            reviewer1.SendReview("Анна Иванова", "Принято, работа значительно улучшена.");
+            reviewer2.SendReview("Анна Иванова", "Замечания устранены, допускаю к защите.");
+
+            Console.WriteLine("\n--- Шаг 6: Одобрение рецензентами и руководителем ---");
+            reviewer1.FinalApprove("Анна Иванова", true);
+            reviewer2.FinalApprove("Анна Иванова", true);
+            supervisor.ApproveThesis("Анна Иванова");
+
+            Console.WriteLine("\n--- Шаг 7: Секретарь назначает дату защиты (эмуляция) ---");
+            // Защита уже планируется автоматически после утверждения, но для наглядности секретарь действует сам
+            secretary.ProposeDefenseDate("Анна Иванова", DateTime.Now.AddDays(10));
+
+            Console.WriteLine("\n--- Шаг 8: Проведение защиты ---");
+            secretary.AnnounceDefenseResult("Анна Иванова", true);
+
+            Console.WriteLine("\n=== Конец демонстрации ===");
         }
     }
 }

@@ -25,7 +25,7 @@ namespace IteratorPatternExample
             if (!HasNext())
             {
                 throw new InvalidOperationException(
-                    "No more mission stages.");
+                    "Не осталось стадий.");
             }
 
             MissionStage stage =

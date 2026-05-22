@@ -53,10 +53,8 @@ TemporaryDependencyNodeTargetIdentifier=net9.0
 /warnaserror+:NU1605,SYSLIB0011
 
 [sourceFiles]
-EvenStageIterator.cs
 IMissionIterator.cs
 Iterator.cs
-LongDurationIterator.cs
 MissionIterator.cs
 MissionSchedule.cs
 MissionStage.cs
@@ -64,7 +62,9 @@ obj/Debug/net9.0/
  .NETCoreApp,Version=v9.0.AssemblyAttributes.cs
  iterator.AssemblyInfo.cs
  iterator.GlobalUsings.g.cs
+PredicateIterator.cs
 ReverseMissionIterator.cs
+TimeBoundedIterator.cs
 
 [metadataReferences]
 <DOTNET>/packs/Microsoft.NETCore.App.Ref/9.0.9/ref/net9.0/

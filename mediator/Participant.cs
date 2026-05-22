@@ -7,12 +7,9 @@ namespace MediatorPatternExample
 
         public string Name { get; }
 
-        protected Participant(
-            string name,
-            IThesisMediator mediator)
+        protected Participant(string name, IThesisMediator mediator)
         {
             Name = name;
-
             Mediator = mediator;
         }
     }
